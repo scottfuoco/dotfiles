@@ -1,0 +1,4 @@
+#pattern  filter=crypt diff=crypt merge=crypt
+.env* filter=crypt diff=crypt merge=crypt
+gh/* filter=crypt diff=crypt merge=crypt
+github-copilot/* filter=crypt diff=crypt merge=crypt
