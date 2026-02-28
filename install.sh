@@ -48,7 +48,7 @@ eval "$(brew shellenv 2>/dev/null || true)"
 # ---------------------------------------------------------------------------
 # Brew packages
 # ---------------------------------------------------------------------------
-PACKAGES=(zsh starship fzf eza bat fd ripgrep zoxide git-delta btop dust tmux gh)
+PACKAGES=(zsh starship fzf eza bat fd ripgrep zoxide git-delta btop dust tmux gh neovim)
 
 info "Installing brew packages..."
 for pkg in "${PACKAGES[@]}"; do
@@ -94,6 +94,19 @@ else
   info "Cloning TPM..."
   git clone --depth 1 https://github.com/tmux-plugins/tpm "$TPM_DIR"
   success "TPM installed"
+fi
+
+# ---------------------------------------------------------------------------
+# LazyVim (Neovim config)
+# ---------------------------------------------------------------------------
+LAZYVIM_DIR="$HOME/.config/nvim"
+if [[ -d "$LAZYVIM_DIR" ]]; then
+  success "LazyVim already installed"
+else
+  info "Cloning LazyVim starter..."
+  git clone https://github.com/LazyVim/starter "$LAZYVIM_DIR"
+  rm -rf "$LAZYVIM_DIR/.git"
+  success "LazyVim installed"
 fi
 
 # ---------------------------------------------------------------------------

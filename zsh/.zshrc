@@ -10,6 +10,7 @@ setopt HIST_REDUCE_BLANKS    # Trim whitespace
 setopt SHARE_HISTORY         # Sync across sessions
 setopt APPEND_HISTORY        # Append instead of overwrite
 setopt INC_APPEND_HISTORY    # Write immediately, not on exit
+setopt AUTO_CD               # Type a dir path to cd into it
 
 # ---------------------------------------------------------------------------
 # Completion
@@ -44,6 +45,8 @@ alias grep='rg'
 alias find='fd'
 alias du='dust'
 alias top='btop'
+alias zs='source ~/.zshrc'
+alias zc='nvim ~/.zshrc'
 
 # ---------------------------------------------------------------------------
 # PATH
