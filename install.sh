@@ -118,7 +118,8 @@ info "Creating symlinks..."
 link_file "$DOTFILES_DIR/zsh/.zshrc"            "$HOME/.zshrc"
 link_file "$DOTFILES_DIR/starship/starship.toml" "$HOME/.config/starship.toml"
 link_file "$DOTFILES_DIR/tmux/.tmux.conf"        "$HOME/.config/tmux/tmux.conf"
-link_file "$DOTFILES_DIR/tmux/tmux.reset.conf"   "$HOME/.config/tmux/tmux.reset.conf"link_file "$DOTFILES_DIR/git/.gitconfig-delta"   "$HOME/.gitconfig-delta"
+link_file "$DOTFILES_DIR/tmux/tmux.reset.conf"   "$HOME/.config/tmux/tmux.reset.conf"
+link_file "$DOTFILES_DIR/git/.gitconfig-delta"   "$HOME/.gitconfig-delta"
 
 # ---------------------------------------------------------------------------
 # Set zsh as default shell
