@@ -46,20 +46,31 @@ success "Homebrew available"
 eval "$(brew shellenv 2>/dev/null || true)"
 
 # ---------------------------------------------------------------------------
-# Brew packages
+# Brew packages (from Brewfile)
 # ---------------------------------------------------------------------------
-PACKAGES=(zsh starship fzf eza bat fd ripgrep zoxide git-delta btop dust tmux gh neovim)
-
-info "Installing brew packages..."
-for pkg in "${PACKAGES[@]}"; do
-  if brew list "$pkg" &>/dev/null; then
-    success "$pkg already installed"
+if [[ -f "$DOTFILES_DIR/Brewfile" ]]; then
+  info "Installing packages from Brewfile..."
+  if [[ "$OS" == "macos" ]]; then
+    brew bundle --file="$DOTFILES_DIR/Brewfile"
   else
-    info "Installing $pkg..."
-    brew install "$pkg"
-    success "$pkg installed"
+    # Linux: skip casks and mas entries
+    brew bundle --file="$DOTFILES_DIR/Brewfile" --no-lock --verbose || \
+      warn "Some Brewfile entries (casks/mas) are macOS-only and were skipped"
   fi
-done
+  success "Brewfile packages installed"
+else
+  warn "No Brewfile found; installing minimal package set"
+  PACKAGES=(zsh starship fzf eza bat fd ripgrep zoxide git-delta btop dust tmux gh neovim)
+  for pkg in "${PACKAGES[@]}"; do
+    if brew list "$pkg" &>/dev/null; then
+      success "$pkg already installed"
+    else
+      info "Installing $pkg..."
+      brew install "$pkg"
+      success "$pkg installed"
+    fi
+  done
+fi
 
 # ---------------------------------------------------------------------------
 # Zsh plugins (git clone, no plugin manager)
@@ -178,7 +189,7 @@ echo -e "${GREEN}========================================${NC}"
 echo -e "${GREEN}  Dotfiles installation complete!${NC}"
 echo -e "${GREEN}========================================${NC}"
 echo ""
-echo "  Installed: ${PACKAGES[*]}"
+echo "  Packages:  see Brewfile"
 echo "  Plugins:   ${!ZSH_PLUGINS[*]}"
 echo "  TPM:       $TPM_DIR"
 echo ""
