@@ -174,6 +174,15 @@ if [[ -f "$(brew --prefix)/opt/fzf/install" ]]; then
 fi
 
 # ---------------------------------------------------------------------------
+# macOS system preferences
+# ---------------------------------------------------------------------------
+if [[ "$OS" == "macos" && -x "$DOTFILES_DIR/macos.sh" ]]; then
+  info "Applying macOS system preferences..."
+  "$DOTFILES_DIR/macos.sh"
+  success "macOS preferences applied"
+fi
+
+# ---------------------------------------------------------------------------
 # Git delta integration hint
 # ---------------------------------------------------------------------------
 if ! git config --global --get include.path | grep -q ".gitconfig-delta" 2>/dev/null; then
