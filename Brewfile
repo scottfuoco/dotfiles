@@ -108,6 +108,11 @@ brew "workmux"
 # ===========================================================================
 if OS.mac?
   # -------------------------------------------------------------------------
+  # Taps (macOS-only casks)
+  # -------------------------------------------------------------------------
+  tap "manaflow-ai/cmux"        # source for the cmux terminal cask below
+
+  # -------------------------------------------------------------------------
   # Casks — browsers
   # -------------------------------------------------------------------------
   cask "google-chrome"
@@ -118,7 +123,7 @@ if OS.mac?
   # -------------------------------------------------------------------------
   cask "ghostty"
   cask "iterm2"
-  cask "cmux"                    # Ghostty-based terminal for AI coding agents
+  cask "manaflow-ai/cmux/cmux"  # native macOS terminal for AI coding agents
 
   # -------------------------------------------------------------------------
   # Casks — editors / IDEs
