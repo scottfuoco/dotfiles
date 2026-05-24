@@ -48,16 +48,21 @@ eval "$(brew shellenv 2>/dev/null || true)"
 # ---------------------------------------------------------------------------
 # Brew packages (from Brewfile)
 # ---------------------------------------------------------------------------
+# NOTE: brew bundle is treated as best-effort. A single failing entry
+#       (e.g. a Mac App Store app not yet in your purchase history, or a
+#       cask unavailable on this machine) should NOT abort the whole setup
+#       and skip symlinks/plugins. We log a warning and keep going.
 if [[ -f "$DOTFILES_DIR/Brewfile" ]]; then
   info "Installing packages from Brewfile..."
   if [[ "$OS" == "macos" ]]; then
-    brew bundle --file="$DOTFILES_DIR/Brewfile"
+    brew bundle --file="$DOTFILES_DIR/Brewfile" || \
+      warn "Some Brewfile entries failed to install (see output above); continuing"
   else
     # Linux: skip casks and mas entries
     brew bundle --file="$DOTFILES_DIR/Brewfile" --no-lock --verbose || \
       warn "Some Brewfile entries (casks/mas) are macOS-only and were skipped"
   fi
-  success "Brewfile packages installed"
+  success "Brewfile processing complete"
 else
   warn "No Brewfile found; installing minimal package set"
   PACKAGES=(zsh starship fzf eza bat fd ripgrep zoxide git-delta btop dust tmux gh neovim)
@@ -77,20 +82,29 @@ fi
 # ---------------------------------------------------------------------------
 mkdir -p "$PLUGINS_DIR"
 
-declare -A ZSH_PLUGINS=(
-  [zsh-autosuggestions]="https://github.com/zsh-users/zsh-autosuggestions.git"
-  [zsh-history-substring-search]="https://github.com/zsh-users/zsh-history-substring-search.git"
-  [fast-syntax-highlighting]="https://github.com/zdharma-continuum/fast-syntax-highlighting.git"
+# Parallel indexed arrays (works on macOS's stock Bash 3.2, unlike
+# associative arrays, which trip over `set -u` on old Bash).
+ZSH_PLUGIN_NAMES=(
+  "zsh-autosuggestions"
+  "zsh-history-substring-search"
+  "fast-syntax-highlighting"
+)
+ZSH_PLUGIN_URLS=(
+  "https://github.com/zsh-users/zsh-autosuggestions.git"
+  "https://github.com/zsh-users/zsh-history-substring-search.git"
+  "https://github.com/zdharma-continuum/fast-syntax-highlighting.git"
 )
 
 info "Setting up zsh plugins..."
-for plugin in "${!ZSH_PLUGINS[@]}"; do
+for i in "${!ZSH_PLUGIN_NAMES[@]}"; do
+  plugin="${ZSH_PLUGIN_NAMES[$i]}"
+  url="${ZSH_PLUGIN_URLS[$i]}"
   dest="$PLUGINS_DIR/$plugin"
   if [[ -d "$dest" ]]; then
     success "$plugin already cloned"
   else
     info "Cloning $plugin..."
-    git clone --depth 1 "${ZSH_PLUGINS[$plugin]}" "$dest"
+    git clone --depth 1 "$url" "$dest"
     success "$plugin cloned"
   fi
 done
@@ -118,6 +132,25 @@ else
   git clone https://github.com/LazyVim/starter "$LAZYVIM_DIR"
   rm -rf "$LAZYVIM_DIR/.git"
   success "LazyVim installed"
+fi
+
+# ---------------------------------------------------------------------------
+# Claude Code (native installer — auto-updates, no Node dependency)
+# ---------------------------------------------------------------------------
+# NOTE: This is Anthropic's official, recommended install method. It drops a
+#       signed binary at ~/.local/bin/claude (already on PATH via .zshrc) and
+#       updates itself in the background. We prefer it over the Homebrew cask,
+#       which does not auto-update. Best-effort: a failure here won't abort
+#       the rest of the setup.
+if command -v claude &>/dev/null; then
+  success "Claude Code already installed ($(claude --version 2>/dev/null || echo 'version unknown'))"
+else
+  info "Installing Claude Code..."
+  if curl -fsSL https://claude.ai/install.sh | bash; then
+    success "Claude Code installed (run 'claude' in a new shell to start)"
+  else
+    warn "Claude Code install failed; install manually later: curl -fsSL https://claude.ai/install.sh | bash"
+  fi
 fi
 
 # ---------------------------------------------------------------------------
@@ -199,7 +232,7 @@ echo -e "${GREEN}  Dotfiles installation complete!${NC}"
 echo -e "${GREEN}========================================${NC}"
 echo ""
 echo "  Packages:  see Brewfile"
-echo "  Plugins:   ${!ZSH_PLUGINS[*]}"
+echo "  Plugins:   ${ZSH_PLUGIN_NAMES[*]}"
 echo "  TPM:       $TPM_DIR"
 echo ""
 echo "  Next steps:"
